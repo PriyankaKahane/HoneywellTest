@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Product Demo </title>
+    <style>
+        .box {
+            color: #fff;
+            padding: 20px;
+            display: none;
+            margin-top: 20px;
+        }
+
+        .red {
+            background: gray;
+        }
+
+        .green {
+            background: gray;
+        }
+
+        .blue {
+            background: gray;
+        }
+    </style>
+
+    <style>
+        table, td, th {
+            border: 1px solid black;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th {
+            height: 50px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            debugger;
+            $("select").change(function () {
+                $(this).find("option:selected").each(function () {
+                    var optionValue = $(this).attr("value");
+                    if (optionValue) {
+                        $(".box").not("." + optionValue).hide();
+                        $("." + optionValue).show();
+                    } else {
+                        $(".box").hide();
+                    }
+                });
+            }).change();
+        });
+    </script>
+</head>
+<body>
+    <div style="width: 500px">
+        <h1>Product List</h1>
+        <table style="border: none">
+            <tr>
+
+                <td style="border: none">
+                    <select id="mySelect" onchange="getCat()">
+                        <option>Choose Category</option>
+                        <option value="red">Cloth</option>
+                        <option value="green">Footware</option>
+                        <option value="blue">Mobiles</option>
+                    </select>
+                </td>
+                <td style="border: none">
+                    <button id="addProd" class="addNewProd" onclick="showInputBox()" style="display: none">Add Product</button>
+
+                </td>
+                <td style="border: none">
+                    <input type="text" id="newProd" placeholder="Name" style="display: none; margin-left: 10px" />
+
+                </td>
+                <td style="border: none">
+                    <input type="text" id="prdPrice" placeholder="Price" style="display: none; margin-left: 10px" />
+
+                </td>
+                <td style="border: none">
+                    <button id="addPrd" class="addProd" onclick="AddProd()" style="display: none; margin-left: 5px">Add</button>
+
+                </td>
+            </tr>
+
+        </table>
+    </div>
+    <div class="red box">
+        <table id="tblCloths">
+            <tr>
+                <th>Product Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Add to cart</th>
+            </tr>
+            <tr>
+                <td>Tops</td>
+                <td>Red Tops</td>
+                <td>150</td>
+                <td>
+                    <input type="button" value="Add to cart" onclick="AddtoCart('Tops', 'Red Tops', 150)" />
+                </td>
+            </tr>
+            <tr>
+                <td>Jeans</td>
+                <td>Black Jeans</td>
+                <td>450</td>
+                <td>
+                    <input type="button" value="Add to cart" onclick="AddtoCart('Jeans', 'Black Jeans', 450)" />
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="green box">
+        <table id="tblFoot">
+            <tr>
+                <th>Product Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Add to cart</th>
+            </tr>
+            <tr>
+                <td>Sandals</td>
+                <td>Black Sandals</td>
+                <td>550</td>
+                <td>
+                    <input type="button" value="Add to cart" onclick="AddtoCart('Sandals', 'Black Sandals', 550)" />
+                </td>
+            </tr>
+            <tr>
+                <td>Chapal</td>
+                <td>Black Chapal</td>
+                <td>650</td>
+                <td>
+                    <input type="button" value="Add to cart" onclick="AddtoCart('Sandals', 'Black Chapal', 650)" />
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="blue box">
+        <table id="tblMobiles">
+            <tr>
+                <th>Product Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Add to cart</th>
+            </tr>
+            <tr>
+                <td>Samsung</td>
+                <td>Samsung S20</td>
+                <td>15000</td>
+                <td>
+                    <input type="button" value="Add to cart" onclick="AddtoCart('Samsung', 'Samsung S20', 15000)" />
+                </td>
+            </tr>
+            <tr>
+                <td>Redmi</td>
+                <td>Redmi Note 7</td>
+                <td>7500</td>
+                <td>
+                    <input type="button" value="Add to cart" onclick="AddtoCart('Redmi', 'Redmi Note 7', 7500)" />
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <br />
+
+    <h4>Cart</h4>
+
+    <table cellpadding="4" cellspacing="4" border="1" id="orderedProductsTbl">
+        <thead>
+            <tr>
+                <td>
+                    Product  Name
+                </td>
+                <td>
+                    Description
+                </td>
+                <td>
+                    Price
+                </td>
+            </tr>
+        </thead>
+        <tbody id="orderedProductsTblBody"></tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" align="right" id="cart_total"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>
+        debugger;
+        //create array that will hold all ordered products
+        var shoppingCart = [];
+
+        //this function manipulates DOM and displays content of our shopping cart
+        function displayShoppingCart() {
+            var orderedProductsTblBody = document.getElementById("orderedProductsTblBody");
+            //ensure we delete all previously added rows from ordered products table
+            while (orderedProductsTblBody.rows.length > 0) {
+                orderedProductsTblBody.deleteRow(0);
+            }
+
+            //variable to hold total price of shopping cart
+            var cart_total_price = 0;
+            //iterate over array of objects
+            for (var product in shoppingCart) {
+                //add new row
+                var row = orderedProductsTblBody.insertRow();
+                //create three cells for product properties
+                var cellName = row.insertCell(0);
+                var cellDescription = row.insertCell(1);
+                var cellPrice = row.insertCell(2);
+                cellPrice.align = "right";
+                //fill cells with values from current product object of our array
+                cellName.innerHTML = shoppingCart[product].Name;
+                cellDescription.innerHTML = shoppingCart[product].Description;
+                cellPrice.innerHTML = shoppingCart[product].Price;
+                cart_total_price += shoppingCart[product].Price;
+            }
+            //fill total cost of our shopping cart
+            document.getElementById("cart_total").innerHTML = cart_total_price;
+        }
+
+        function showInputBox() {
+            document.getElementById("newProd").style.display = "block";
+            document.getElementById("addPrd").style.display = "block";
+            document.getElementById("prdPrice").style.display = "block";
+            //addPrd
+        }
+
+        function getCat() {
+            var cat = document.getElementById("mySelect").value;
+            if (cat != "Choose Category")
+                document.getElementById("addProd").style.display = "block";
+        }
+
+        function AddProd() {
+            debugger;
+            var prod = document.getElementById("newProd").value;
+            var price = document.getElementById("prdPrice").value;
+            var cat = document.getElementById("mySelect").value;
+            var table;
+
+            if (cat == "red")
+                table = document.getElementById("tblCloths");
+            if (cat == "blue")
+                table = document.getElementById("tblFoot");
+            if (cat == "green")
+                table = document.getElementById("tblMobiles");
+
+            var row = table.insertRow(-1);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            var cell4 = row.insertCell(3);
+            cell1.innerHTML = prod;
+            cell2.innerHTML = prod;
+            cell3.innerHTML = price;
+            cell4.innerHTML = '<input type="button" value="Add to cart" onclick="AddtoCart(\'' + prod + '\',\'' + prod + '\',' + price + ')" />';
+
+            //
+        }
+        function AddtoCart(name, description, price) {
+            debugger;
+            //Below we create JavaScript Object that will hold three properties you have mentioned:    Name,Description and Price
+            var singleProduct = {};
+            //Fill the product object with data
+            singleProduct.Name = name;
+            singleProduct.Description = description;
+            singleProduct.Price = price;
+            //Add newly created product to our shopping cart
+            shoppingCart.push(singleProduct);
+            //call display function to show on screen
+            displayShoppingCart();
+
+        }
+
+
+    //Add some products to our shopping cart via code or you can create a button with onclick event
+    //AddtoCart("Table","Big red table",50);
+    //AddtoCart("Door","Big yellow door",150);
+    //AddtoCart("Car","Ferrari S23",150000);
+
+    </script>
+
+</body>
+</html>
